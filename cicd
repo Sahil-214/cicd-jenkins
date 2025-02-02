@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('01.Clone Repo') {
+            steps {
+                echo "Git Cloning"
+                git url: 'https://github.com/shubhamdhole97/msexcel.git', branch: 'main'
+            }
+        }
+        stage('02.Clean') {
+            steps {
+                echo "Cleaning"
+                sh 'mvn clean'
+            }
+        }
+        stage('03.Package') {
+            steps {
+                echo "Packaging"
+                sh 'mvn package'
+            }
+        }
+        stage('04.Deploy to Nexus') {
+            steps {
+                echo "Deploy to Nexus"
+                sh 'curl -v -u admin:admin123 --upload-file target/msexcel-0.0.1-SNAPSHOT.jar http://localhost:8081/repository/new/com/msoffice/msexcel/0.0.1/msexcel-0.0.1-SNAPSHOT.jar'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
